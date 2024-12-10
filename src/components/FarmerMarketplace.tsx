@@ -1,7 +1,43 @@
-import { useState } from 'react';
+import  { useState } from 'react';
 import { ShoppingCart, Leaf, Apple, Carrot, Wheat, Languages } from 'lucide-react';
 
-const translations = {
+// Explicitly define Language type
+type Language = 'english' | 'hindi';
+
+// Detailed interface for translations
+interface TranslationContent {
+  header: {
+    title: string;
+    cart: string;
+  };
+  hero: {
+    title: string;
+    description: string;
+  };
+  categories: {
+    fruits: {
+      name: string;
+      items: string[];
+    };
+    vegetables: {
+      name: string;
+      items: string[];
+    };
+    grains: {
+      name: string;
+      items: string[];
+    };
+    shopNow: string;
+  };
+  carousel: Array<{
+    caption: string;
+    alt: string;
+  }>;
+  footer: string;
+}
+
+// Strongly typed translations object
+const translations: { [key in Language]: TranslationContent } = {
   english: {
     header: {
       title: "Farmer Direct Market",
@@ -84,8 +120,14 @@ const translations = {
   }
 };
 
-const FarmerMarketplace = () => {
-  const [language, setLanguage] = useState('english');
+// Type-safe translation getter
+function getTranslation(lang: Language, path: string) {
+  const keys = path.split('.');
+  return keys.reduce((obj, key) => obj[key], translations[lang] as any);
+}
+
+const FarmerMarketplace: React.FC = () => {
+  const [language, setLanguage] = useState<Language>('english');
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const toggleLanguage = () => {
@@ -93,7 +135,7 @@ const FarmerMarketplace = () => {
   };
 
   const carouselImages = translations[language].carousel.map(item => ({
-    src:"https://b3075642.smushcdn.com/3075642/wp-content/uploads/Canva-Farmer-in-sugar-beet-field-1-1536x1024.jpg?lossy=1&strip=1&webp=1",
+    src: `/api/placeholder/1200/600?text=${encodeURIComponent(item.caption)}`,
     alt: item.alt,
     caption: item.caption
   }));
@@ -130,7 +172,9 @@ const FarmerMarketplace = () => {
       <header className="bg-green-600 text-white p-4 shadow-md flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <Leaf size={40} />
-          <h1 className="text-2xl font-bold">{translations[language].header.title}</h1>
+          <h1 className="text-2xl font-bold">
+            {translations[language].header.title}
+          </h1>
         </div>
         <div className="flex items-center space-x-4">
           {/* Language Toggle Button */}
